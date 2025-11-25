@@ -23,7 +23,8 @@ CREATE OR REPLACE TABLE fact_orders (
 
 
 CREATE OR REPLACE TABLE dim_date (
-    date_value     DATE PRIMARY KEY,
+    sk_date        INTEGER PRIMARY KEY,
+    date_value     DATE,
     year           INTEGER,
     month          INTEGER,
     month_name     VARCHAR,

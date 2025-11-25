@@ -1,18 +1,117 @@
 -- Hora de criar as dims e fact
 
 -- INSERT INTO fact_orders
+-- só falta criar a fato aqui, fazendo os joins etc
 
 -- INSERT INTO dim_date
+INSERT INTO dim_date
+SELECT
+    CAST(strftime('%Y%m%d', d) AS INTEGER) AS sk_date,
+    d AS date_value,
+    EXTRACT(YEAR FROM d)  AS year,
+    EXTRACT(MONTH FROM d) AS month,
+    strftime('%B', d)     AS month_name,
+    'T' || EXTRACT(QUARTER FROM d) AS trim   -- T1, T2, T3, T4
+FROM generate_series(
+        DATE '2015-01-01',
+        DATE '2025-12-31',
+        INTERVAL 1 DAY
+) AS t(d)
+ORDER BY d;
 
-INSERT INTO dim_customer (customer_unique_id, customer_city, customer_state)
-SELECT DISTINCT
-    -- gerar sk_customer
-       customer_unique_id,
-       customer_city,
-       customer_state
-FROM stg_customers c
 
-WHERE NOT EXISTS (
-    SELECT 1 FROM dim_customer d
-    WHERE d.customer_unique_id = c.customer_unique_id
-);
+-- Dimensão Customer
+WITH c AS (
+    SELECT DISTINCT
+        TRIM(customer_unique_id) AS customer_unique_id,
+        customer_city,
+        customer_state
+    FROM oltp_customers
+)
+INSERT INTO dim_customer (
+    sk_customer,
+    customer_unique_id,
+    customer_city,
+    customer_state,
+    start_date,
+    end_date,
+    is_current
+)
+SELECT
+    ROW_NUMBER() OVER (ORDER BY customer_unique_id) AS sk_customer,
+    customer_unique_id,
+    customer_city,
+    customer_state,
+    CURRENT_DATE,
+    NULL,
+    TRUE
+FROM c;
+
+
+-- Dimensão Product
+WITH p AS (
+    SELECT DISTINCT
+        TRIM(product_id) AS product_id,
+        product_categ
+    FROM oltp_products
+)
+INSERT INTO dim_product (
+    sk_product,
+    product_id,
+    product_categ,
+    start_date,
+    end_date,
+    is_current
+)
+SELECT
+    ROW_NUMBER() OVER (ORDER BY product_id) AS sk_product,
+    product_id,
+    product_categ,
+    CURRENT_DATE,
+    NULL,
+    TRUE
+FROM p;
+
+
+-- Dimensão Seller
+WITH s AS (
+    SELECT DISTINCT
+        TRIM(seller_id) AS seller_id,
+        seller_city,
+        seller_state
+    FROM oltp_sellers
+)
+INSERT INTO dim_seller (
+    sk_seller,
+    seller_id,
+    seller_city,
+    seller_state,
+    start_date,
+    end_date,
+    is_current
+)
+SELECT
+    ROW_NUMBER() OVER (ORDER BY seller_id) AS sk_seller,
+    seller_id,
+    seller_city,
+    seller_state,
+    CURRENT_DATE,
+    NULL,
+    TRUE
+FROM s;
+
+
+-- Dimensão Order Status
+WITH st AS (
+    SELECT DISTINCT
+        COALESCE(NULLIF(TRIM(order_status), ''), 'UNKNOWN') AS order_status
+    FROM oltp_orders
+)
+INSERT INTO dim_order_status (
+    sk_order_status,
+    status_name
+)
+SELECT
+    ROW_NUMBER() OVER (ORDER BY order_status) AS sk_order_status,
+    order_status AS status_name
+FROM st;
