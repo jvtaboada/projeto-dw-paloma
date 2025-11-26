@@ -1,5 +1,5 @@
 ## Configurar ambiente python
-https://youtu.be/9LYqtLuD7z4?t=842
+- https://youtu.be/9LYqtLuD7z4?t=842
 
 ## Rodar o projeto
 - (pré-req locais: python, git, etcs)

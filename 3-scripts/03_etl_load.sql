@@ -1,9 +1,6 @@
--- Hora de criar as dims e fact
+-- Hora de popular as dims e fact
 
--- INSERT INTO fact_orders
--- só falta criar a fato aqui, fazendo os joins etc
-
--- INSERT INTO dim_date
+-- Dimensão Date
 INSERT INTO dim_date
 SELECT
     CAST(strftime('%Y%m%d', d) AS INTEGER) AS sk_date,
@@ -23,6 +20,7 @@ ORDER BY d;
 -- Dimensão Customer
 WITH c AS (
     SELECT DISTINCT
+        customer_id,           -- <-- VOLTA COM ELE!
         TRIM(customer_unique_id) AS customer_unique_id,
         customer_city,
         customer_state
@@ -30,6 +28,7 @@ WITH c AS (
 )
 INSERT INTO dim_customer (
     sk_customer,
+    customer_id,
     customer_unique_id,
     customer_city,
     customer_state,
@@ -38,7 +37,8 @@ INSERT INTO dim_customer (
     is_current
 )
 SELECT
-    ROW_NUMBER() OVER (ORDER BY customer_unique_id) AS sk_customer,
+    ROW_NUMBER() OVER (ORDER BY customer_id) AS sk_customer,
+    customer_id,
     customer_unique_id,
     customer_city,
     customer_state,
@@ -115,3 +115,41 @@ SELECT
     ROW_NUMBER() OVER (ORDER BY order_status) AS sk_order_status,
     order_status AS status_name
 FROM st;
+
+
+-- Fato Orders
+INSERT INTO fact_orders (
+    order_id,
+    order_item_id,
+    sk_date,
+    sk_customer,
+    sk_product,
+    sk_seller,
+    sk_order_status,
+    price,
+    freight_value,
+    total_value
+)
+SELECT
+    -- Natual Keys
+    oi.order_id,
+    oi.item_id,
+
+    -- SKs
+    dd.sk_date,
+    dc.sk_customer,
+    dp.sk_product,
+    ds.sk_seller,
+    dos.sk_order_status,
+
+    -- KPIs
+    oi.price,
+    oi.freight_value,            
+    (oi.price + oi.freight_value)
+FROM oltp_order_items oi
+JOIN oltp_orders o ON oi.order_id = o.order_id
+LEFT JOIN dim_date dd ON dd.sk_date = CAST(strftime('%Y%m%d', o.purchase_ts) AS INTEGER)
+LEFT JOIN dim_customer dc ON dc.customer_id = o.customer_id AND dc.is_current = TRUE
+LEFT JOIN dim_product dp ON dp.product_id = oi.product_id AND dp.is_current = TRUE
+LEFT JOIN dim_seller ds ON ds.seller_id = oi.seller_id AND ds.is_current = TRUE
+LEFT JOIN dim_order_status dos ON dos.status_name = o.order_status;

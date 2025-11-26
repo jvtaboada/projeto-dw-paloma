@@ -13,7 +13,6 @@ CREATE OR REPLACE TABLE fact_orders (
     sk_order_status       INTEGER,
 
     -- KPIs
-    quantity              INTEGER,
     price                 DECIMAL(10,2),
     freight_value         DECIMAL(10,2),
     total_value           DECIMAL(10,2),
@@ -34,6 +33,7 @@ CREATE OR REPLACE TABLE dim_date (
 
 CREATE OR REPLACE TABLE dim_customer (
     sk_customer        INTEGER PRIMARY KEY,
+    customer_id        VARCHAR,
     customer_unique_id VARCHAR,
     customer_city      VARCHAR,
     customer_state     CHAR(2),

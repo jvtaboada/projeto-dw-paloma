@@ -1,7 +1,7 @@
 -- stg_customers > oltp_customers
 CREATE OR REPLACE TABLE oltp_customers AS
-       SELECT --DISTINCT -- ??? TÁ CERTO ESSE DISTINCT AQUI JÁ ???
-              --customer_id --id da transacao, vou ignorar
+       SELECT --DISTINCT
+              CAST(customer_id AS VARCHAR) customer_id, --id da transação, precisa pra join
               CAST(customer_unique_id AS VARCHAR) customer_unique_id, --id unico, fica na dim
               --customer_zip_code_prefix
               CAST(customer_city as VARCHAR) as customer_city,
