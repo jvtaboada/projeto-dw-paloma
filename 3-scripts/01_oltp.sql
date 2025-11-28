@@ -1,6 +1,8 @@
+/* Transformar as VIEWS em tabelas OLTP: ajustando tipos das colunas, removendo colunas desnecessárias e tratando nulos */
+
 -- stg_customers > oltp_customers
 CREATE OR REPLACE TABLE oltp_customers AS
-       SELECT --DISTINCT
+       SELECT
               CAST(customer_id AS VARCHAR) customer_id, --id da transação, precisa pra join
               CAST(customer_unique_id AS VARCHAR) customer_unique_id, --id unico, fica na dim
               --customer_zip_code_prefix
@@ -13,7 +15,7 @@ SELECT * FROM oltp_customers;
 
 -- stg_sellers > oltp_sellers
 CREATE OR REPLACE TABLE oltp_sellers AS
-       SELECT --DISTINCT
+       SELECT
               CAST(seller_id AS VARCHAR) AS seller_id,
               --seller_zip_code_prefix
               CAST(seller_city as VARCHAR) as seller_city,
@@ -26,7 +28,7 @@ SELECT * FROM oltp_sellers;
 
 -- stg_products > oltp_products
 CREATE OR REPLACE TABLE oltp_products AS
-       SELECT --DISTINCT
+       SELECT
               CAST(product_id AS VARCHAR) AS product_id,
               CAST(product_category_name AS VARCHAR) as product_categ
               --product_name_lenght
@@ -36,15 +38,14 @@ CREATE OR REPLACE TABLE oltp_products AS
               --product_length_cm
               --product_height_cm
               --product_width_cm
-       FROM stg_products
-       WHERE product_id IS NOT NULL;
+       FROM stg_products;
 
 SELECT * FROM oltp_products;
 
 
 -- stg_orders > oltp_orders
 CREATE OR REPLACE TABLE oltp_orders AS
-       SELECT --DISTINCT
+       SELECT
               CAST(order_id AS VARCHAR) AS order_id,
               CAST(customer_id AS VARCHAR) AS customer_id,
               CAST(order_status AS VARCHAR) AS order_status,
@@ -61,7 +62,7 @@ SELECT * FROM oltp_orders;
 
 -- stg_order_items > oltp_order_items
 CREATE OR REPLACE TABLE oltp_order_items AS
-       SELECT --DISTINCT
+       SELECT
               CAST(order_id AS VARCHAR) AS order_id,
               CAST(order_item_id AS INTEGER) AS item_id,
               CAST(product_id AS VARCHAR) AS product_id,

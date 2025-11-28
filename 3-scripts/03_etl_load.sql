@@ -1,26 +1,27 @@
--- Hora de popular as dims e fact
+/* Popular o modelo dimensional definido:  gerar dimensão data, remover duplicatas, criar SKs, criar colunas de SCD2 e gerar tabela fato de acordo com a regra de negócio */
 
--- Dimensão Date
+-- Dimensão Date -- TÁ ERRADASSA SLC: OLHA AÍ Q PRECISA BATER NA DATA DA PURCHASE
 INSERT INTO dim_date
 SELECT
-    CAST(strftime('%Y%m%d', d) AS INTEGER) AS sk_date,
-    d AS date_value,
-    EXTRACT(YEAR FROM d)  AS year,
-    EXTRACT(MONTH FROM d) AS month,
-    strftime('%B', d)     AS month_name,
-    'T' || EXTRACT(QUARTER FROM d) AS trim   -- T1, T2, T3, T4
-FROM generate_series(
-        DATE '2015-01-01',
-        DATE '2025-12-31',
-        INTERVAL 1 DAY
-) AS t(d)
-ORDER BY d;
+    CAST(strftime('%Y%m%d', dt) AS INTEGER) AS sk_date,
+    dt AS date_value,
+    EXTRACT(YEAR  FROM dt) AS year,
+    EXTRACT(MONTH FROM dt) AS month,
+    strftime('%B', dt) AS month_name,
+    'T' || EXTRACT(QUARTER FROM dt) AS trim
+FROM (
+    SELECT DISTINCT
+        CAST(purchase_ts AS DATE) AS dt
+    FROM oltp_orders
+)
+ORDER BY dt;
+
 
 
 -- Dimensão Customer
 WITH c AS (
     SELECT DISTINCT
-        customer_id,           -- <-- VOLTA COM ELE!
+        customer_id,
         TRIM(customer_unique_id) AS customer_unique_id,
         customer_city,
         customer_state

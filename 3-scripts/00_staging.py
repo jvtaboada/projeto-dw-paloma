@@ -1,7 +1,8 @@
+# Transformar os CSVs em VIEWS dentro do banco de dados
+
 import duckdb
 
 con = duckdb.connect("dw.duckdb")
-
 
 # olist_orders_dataset
 con.execute("""

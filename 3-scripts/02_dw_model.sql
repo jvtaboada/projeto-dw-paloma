@@ -1,4 +1,4 @@
--- fact_orders > dim_date, dim_customer, dim_product, dim_seller, dim_order_status
+/* Criar as tabelas do modelo dimensional: a tabela fato e as 5 dimensões */
 
 CREATE OR REPLACE TABLE fact_orders (
     -- Natural Keys - lógica dos pedidos: 1 order_id para N order_item_id
