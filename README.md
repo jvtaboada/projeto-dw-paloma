@@ -3,6 +3,9 @@
 - Python 3.14.0 (ou superior)
 - Windows e PowerShell
 
+
+<br>
+
 ## 🛠️ Como rodar o projeto
 
 1. Baixe o código do projeto e entre no diretório
