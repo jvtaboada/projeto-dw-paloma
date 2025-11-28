@@ -1,6 +1,7 @@
 ## ⚙️ Pré-requisitos locais
 - Git configurado
 - Python 3.14.0 (ou superior)
+- Duckdb configurado
 - Windows e PowerShell
 
 
