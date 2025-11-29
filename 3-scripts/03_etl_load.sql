@@ -1,6 +1,6 @@
 /* Popular o modelo dimensional definido:  gerar dimensão data, remover duplicatas, criar SKs, criar colunas de SCD2 e gerar tabela fato de acordo com a regra de negócio */
 
--- Dimensão Date -- TÁ ERRADASSA SLC: OLHA AÍ Q PRECISA BATER NA DATA DA PURCHASE
+-- Dimensão Date
 INSERT INTO dim_date
 SELECT
     CAST(strftime('%Y%m%d', dt) AS INTEGER) AS sk_date,

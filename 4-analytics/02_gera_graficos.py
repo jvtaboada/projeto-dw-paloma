@@ -24,7 +24,6 @@ GROUP BY d.year
 ORDER BY d.year;
 """
 
-# ajustar detalhe do ano 2016.5 #
 df = con.execute(sql_faturamento_ano).df()
 
 graf1 = px.line(df, x="ano", y="faturamento", title="Faturamento por ano")
